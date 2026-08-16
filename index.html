@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Aprendo — Tu plan de estudio</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{--primary:#6355f4;--primary-light:#ede9fe;--bg:#f0f2fa;--sidebar-bg:#ffffff;--card-bg:#ffffff;--text:#111827;--text-muted:#6b7280;--border:#e5e7eb;--shadow:0 1px 4px rgba(0,0,0,.07);--shadow-md:0 4px 16px rgba(0,0,0,.12);--green:#10b981;--red:#ef4444;--amber:#f59e0b;--sidebar-width:240px;}
+[data-theme="dark"]{--bg:#0f0f1a;--sidebar-bg:#16162a;--card-bg:#1e1e35;--text:#f1f5f9;--text-muted:#94a3b8;--border:#2d2d50;--shadow:0 1px 4px rgba(0,0,0,.3);--shadow-md:0 4px 16px rgba(0,0,0,.5);--primary-light:#2a2260;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;transition:background .3s,color .3s;}
+::selection{background:var(--primary);color:#fff;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px;}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar-width);background:var(--sidebar-bg);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:background .3s,border-color .3s;}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:18px 18px 14px;border-bottom:1px solid var(--border);}
+.logo-icon{width:36px;height:36px;border-radius:10px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:white;font-size:17px;flex-shrink:0;}
+.logo-text h2{font-size:14px;font-weight:700;}
+.logo-text p{font-size:10px;color:var(--text-muted);}
+.sidebar-nav{flex:1;padding:14px 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;transition:all .2s;user-select:none;}
+.nav-item:hover{background:var(--bg);color:var(--text);}
+.nav-item.active{background:var(--primary);color:white;}
+.nav-item svg{flex-shrink:0;}
+.nav-divider{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);padding:14px 12px 6px;}
+.sidebar-footer{padding:12px 14px 16px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px;}
+.streak-box{background:var(--primary-light);border-radius:12px;padding:11px 12px;display:flex;align-items:center;gap:9px;}
+.streak-box .flame{width:28px;height:28px;border-radius:8px;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.streak-box .txt b{display:block;font-size:12.5px;font-weight:800;color:var(--text);}
+.streak-box .txt span{font-size:10px;color:var(--text-muted);}
+.theme-btns{display:flex;gap:3px;}
+.theme-btn{flex:1;padding:6px 2px;border-radius:8px;border:1px solid var(--border);background:var(--card-bg);font-size:10px;font-weight:600;cursor:pointer;color:var(--text-muted);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:3px;font-family:inherit;}
+.theme-btn.active{background:var(--primary-light);color:var(--primary);border-color:var(--primary);}
+.theme-btn svg{width:12px;height:12px;}
+
+/* MAIN */
+.main{margin-left:var(--sidebar-width);flex:1;padding:26px 30px 60px;max-width:980px;}
+.page{display:none;}
+.page.active{display:block;animation:pageIn .25s ease both;}
+@keyframes pageIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;gap:16px;flex-wrap:wrap;}
+.page-header h1{font-size:22px;font-weight:800;}
+.page-header p{font-size:12.5px;color:var(--text-muted);margin-top:3px;}
+
+/* CARD */
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:var(--shadow);margin-bottom:18px;transition:background .3s,border-color .3s;}
+.card-title{font-size:14px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.card-sub{font-size:12px;color:var(--text-muted);margin-bottom:16px;}
+
+/* FORM */
+label{display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:7px;}
+input[type=text],input[type=password]{width:100%;padding:12px 14px;border-radius:11px;border:1.5px solid var(--border);background:var(--bg);font-family:inherit;font-size:14px;color:var(--text);transition:border-color .2s;}
+input[type=text]:focus,input[type=password]:focus{outline:none;border-color:var(--primary);}
+select{width:100%;padding:11px 13px;border-radius:11px;border:1.5px solid var(--border);background:var(--bg);font-family:inherit;font-size:13px;font-weight:600;color:var(--text);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px;}
+@media(max-width:720px){.grid2{grid-template-columns:1fr;} .main{padding:22px 16px 60px;} .sidebar{width:72px;} .logo-text,.nav-item span.lbl,.streak-box .txt,.theme-btn span.lbl{display:none;} .main{margin-left:72px;} .sidebar-logo{justify-content:center;padding:16px 8px;} .nav-item{justify-content:center;padding:12px;}}
+
+.diff-options{display:flex;gap:8px;}
+.diff-btn{flex:1;padding:11px 6px;text-align:center;border:1.5px solid var(--border);background:var(--bg);border-radius:11px;font-family:inherit;cursor:pointer;transition:all .2s;color:var(--text-muted);}
+.diff-btn .emoji{font-size:17px;display:block;margin-bottom:3px;}
+.diff-btn .lbl{font-size:11.5px;font-weight:700;}
+.diff-btn.active{border-color:var(--primary);background:var(--primary-light);color:var(--primary);}
+
+.btn-primary{padding:13px 20px;background:var(--primary);color:white;border:none;border-radius:12px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s;}
+.btn-primary:hover{background:#5244e0;}
+.btn-primary:disabled{opacity:.55;cursor:not-allowed;}
+.btn-primary.full{width:100%;margin-top:22px;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:10px;border:1px solid var(--border);background:var(--card-bg);font-size:12.5px;font-weight:600;cursor:pointer;color:var(--text);transition:all .2s;font-family:inherit;}
+.btn:hover{background:var(--bg);}
+.btn-danger{color:var(--red);}
+
+/* RESULT */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:6px;}
+.stat-card{background:var(--bg);border-radius:14px;padding:16px;text-align:center;}
+.stat-card .num{font-size:26px;font-weight:800;color:var(--primary);line-height:1;}
+.stat-card .lbl{font-size:11px;color:var(--text-muted);margin-top:6px;font-weight:600;}
+
+.note{margin-top:16px;padding:13px 15px;background:var(--primary-light);border-radius:12px;font-size:13px;color:var(--text);line-height:1.6;display:flex;gap:10px;}
+.note svg{flex-shrink:0;color:var(--primary);margin-top:1px;}
+
+.day-list{margin-top:16px;display:flex;flex-direction:column;gap:8px;}
+.day-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:11px;background:var(--bg);font-size:12.5px;}
+.day-item .d{font-weight:700;width:78px;color:var(--text);}
+.day-item .tag{font-size:10.5px;color:var(--text-muted);width:100px;}
+.day-item .bar{flex:1;height:7px;background:var(--border);border-radius:4px;overflow:hidden;}
+.day-item .bar span{display:block;height:100%;background:var(--primary);border-radius:4px;}
+.day-item .h{font-size:11px;color:var(--text-muted);font-weight:700;width:38px;text-align:right;}
+.day-item.done{opacity:.5;}
+.day-check{width:18px;height:18px;border-radius:6px;border:1.5px solid var(--border);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--card-bg);}
+.day-check.on{background:var(--green);border-color:var(--green);color:#fff;}
+
+/* CHAT */
+.chat-log{display:flex;flex-direction:column;gap:12px;max-height:420px;overflow-y:auto;padding-right:4px;margin-bottom:14px;}
+.msg{max-width:85%;padding:11px 15px;border-radius:14px;font-size:13.5px;line-height:1.6;white-space:pre-wrap;}
+.msg.ai{background:var(--bg);align-self:flex-start;border-bottom-left-radius:4px;}
+.msg.user{background:var(--primary);color:white;align-self:flex-end;border-bottom-right-radius:4px;}
+.msg.typing{display:flex;gap:4px;align-items:center;padding:14px 16px;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--text-muted);animation:bounce 1.2s infinite;}
+.dot:nth-child(2){animation-delay:.15s;}
+.dot:nth-child(3){animation-delay:.3s;}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.5;}30%{transform:translateY(-4px);opacity:1;}}
+.chat-input{display:flex;gap:8px;}
+.chat-input input{flex:1;padding:11px 15px;border-radius:24px;border:1.5px solid var(--border);background:var(--bg);font-family:inherit;font-size:13.5px;}
+.chat-input input:focus{outline:none;border-color:var(--primary);}
+.chat-input button{width:42px;height:42px;border-radius:50%;background:var(--primary);color:white;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .2s;}
+.chat-input button:hover{background:#5244e0;}
+.chat-input button:disabled{opacity:.5;cursor:not-allowed;}
+.badge-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px;margin-bottom:14px;}
+.badge{font-size:11.5px;padding:7px 13px;border:1px solid var(--border);border-radius:20px;color:var(--text-muted);cursor:pointer;font-weight:600;transition:all .2s;}
+.badge:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-light);}
+
+.api-warning{display:flex;align-items:center;gap:10px;padding:12px 15px;background:#fef3c7;border-radius:12px;font-size:12.5px;color:#92400e;margin-bottom:14px;}
+[data-theme="dark"] .api-warning{background:#3f2d08;color:#fbbf24;}
+.api-warning a{color:inherit;font-weight:700;}
+
+/* FUTURE / EMPTY */
+.future-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+@media(max-width:720px){.future-grid{grid-template-columns:1fr;}}
+.future-item{padding:14px 15px;border-radius:13px;border:1.5px dashed var(--border);display:flex;gap:11px;align-items:flex-start;}
+.future-item .ic{width:32px;height:32px;border-radius:9px;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.future-item h4{font-size:12.5px;font-weight:700;margin-bottom:2px;}
+.future-item p{font-size:11.5px;color:var(--text-muted);line-height:1.4;}
+
+.empty-state{text-align:center;padding:50px 20px;color:var(--text-muted);}
+.empty-state .ic{width:52px;height:52px;border-radius:16px;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
+.empty-state h3{font-size:15px;color:var(--text);margin-bottom:6px;}
+.empty-state p{font-size:12.5px;margin-bottom:18px;}
+
+/* MATERIA CARDS */
+.materia-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;}
+.materia-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:all .2s;}
+.materia-card:hover{border-color:var(--primary);transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.materia-card .top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.materia-card h4{font-size:13.5px;font-weight:700;line-height:1.3;}
+.dchip{font-size:9.5px;font-weight:800;padding:3px 8px;border-radius:20px;text-transform:uppercase;flex-shrink:0;margin-left:8px;}
+.dchip.d1{background:#d1fae5;color:#047857;}
+.dchip.d2{background:#fef3c7;color:#92400e;}
+.dchip.d3{background:#fee2e2;color:#b91c1c;}
+[data-theme="dark"] .dchip.d1{background:#064e3b;color:#6ee7b7;}
+[data-theme="dark"] .dchip.d2{background:#3f2d08;color:#fbbf24;}
+[data-theme="dark"] .dchip.d3{background:#450a0a;color:#fca5a5;}
+.materia-progress{height:6px;background:var(--bg);border-radius:4px;overflow:hidden;margin-bottom:8px;}
+.materia-progress span{display:block;height:100%;background:var(--primary);}
+.materia-card .meta{display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);}
+
+/* PROGRESO */
+.progress-hero{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+@media(max-width:720px){.progress-hero{grid-template-columns:repeat(2,1fr);}}
+.phero-card{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:18px;text-align:center;}
+.phero-card .num{font-size:28px;font-weight:800;color:var(--primary);}
+.phero-card .lbl{font-size:11px;color:var(--text-muted);font-weight:600;margin-top:4px;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;}
+.modal-overlay.hidden{display:none;}
+.modal{background:var(--card-bg);border-radius:18px;padding:26px;width:420px;max-width:100%;box-shadow:var(--shadow-md);}
+.modal h3{font-size:16px;font-weight:800;margin-bottom:6px;}
+.modal p{font-size:12.5px;color:var(--text-muted);margin-bottom:16px;line-height:1.5;}
+.modal-actions{display:flex;gap:8px;margin-top:18px;justify-content:flex-end;}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🎓</div>
+    <div class="logo-text"><h2>Aprendo</h2><p>Planificador de estudio</p></div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-item active" data-page="nuevo">
+      <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      <span class="lbl">Nuevo plan</span>
+    </div>
+    <div class="nav-item" data-page="materias">
+      <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      <span class="lbl">Mis materias</span>
+    </div>
+    <div class="nav-item" data-page="progreso">
+      <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+      <span class="lbl">Progreso</span>
+    </div>
+    <div class="nav-divider">Sistema</div>
+    <div class="nav-item" data-page="ajustes">
+      <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span class="lbl">Ajustes</span>
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="streak-box">
+      <div class="flame">🔥</div>
+      <div class="txt"><b id="streakNum">0 días</b><span>Racha de estudio</span></div>
+    </div>
+    <div class="theme-btns">
+      <button class="theme-btn" data-theme="light"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg><span class="lbl">Claro</span></button>
+      <button class="theme-btn" data-theme="dark"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span class="lbl">Oscuro</span></button>
+      <button class="theme-btn" data-theme="auto"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg><span class="lbl">Auto</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- PAGE: NUEVO PLAN -->
+  <div class="page active" id="page-nuevo">
+    <div class="page-header">
+      <div>
+        <h1>Arma tu plan de estudio</h1>
+        <p>Dime qué necesitas aprender y cuánto se te dificulta — yo calculo el resto.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">¿Qué quieres estudiar?</div>
+      <div class="card-sub">Puede ser un ramo completo o un tema específico</div>
+      <input type="text" id="topic" placeholder="Ej: Estados Financieros Consolidados, Cálculo Integral...">
+
+      <div class="grid2">
+        <div>
+          <label>Nivel de dificultad para ti</label>
+          <div class="diff-options">
+            <div class="diff-btn" data-v="1"><span class="emoji">😌</span><span class="lbl">Poco</span></div>
+            <div class="diff-btn active" data-v="2"><span class="emoji">🤔</span><span class="lbl">Medio</span></div>
+            <div class="diff-btn" data-v="3"><span class="emoji">😰</span><span class="lbl">Mucho</span></div>
+          </div>
+        </div>
+        <div>
+          <label>¿Para cuándo lo necesitas?</label>
+          <select id="deadline">
+            <option value="3">En 3 días (urgente)</option>
+            <option value="7" selected>En 1 semana</option>
+            <option value="14">En 2 semanas</option>
+            <option value="30">En 1 mes</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn-primary full" id="genBtn">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"/></svg>
+        Generar plan de estudio
+      </button>
+    </div>
+
+    <div class="result" id="result" style="display:none;">
+      <div class="card">
+        <div class="card-title">Tu plan a la medida</div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="num" id="totalHours">—</div><div class="lbl">Horas totales</div></div>
+          <div class="stat-card"><div class="num" id="totalDays">—</div><div class="lbl">Días de estudio</div></div>
+          <div class="stat-card"><div class="num" id="perDay">—</div><div class="lbl">Hrs / día</div></div>
+        </div>
+        <div class="note">
+          <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+          <span id="planNote"></span>
+        </div>
+        <div class="day-list" id="dayList"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M2 14h2M20 14h2M9 13v2M15 13v2"/></svg>
+          Estudiemos juntos
+        </div>
+        <div class="card-sub">Pregunta, pide explicaciones o ponte a prueba con IA</div>
+        <div id="apiWarning" class="api-warning" style="display:none;">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
+          <span>Falta tu API key de Gemini. <a id="goToSettings" href="javascript:void(0)">Configúrala en Ajustes</a> (es gratis).</span>
+        </div>
+        <div class="chat-log" id="chatLog"></div>
+        <div class="badge-row">
+          <div class="badge" data-q="Explícame lo básico de este tema, paso a paso">Explícame lo básico</div>
+          <div class="badge" data-q="Hazme una pregunta para evaluar qué tanto sé del tema">Evalúame</div>
+          <div class="badge" data-q="Dame un resumen tipo ficha de estudio con los puntos clave">Ficha resumen</div>
+        </div>
+        <div class="chat-input">
+          <input type="text" id="chatInput" placeholder="Escribe tu duda o responde la pregunta...">
+          <button id="sendBtn"><svg width="16" height="16" fill="none" stroke="white" stroke-width="2.3" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Próximamente</div>
+        <div class="card-sub">Ideas para ir agregando con el tiempo</div>
+        <div class="future-grid">
+          <div class="future-item">
+            <div class="ic"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+            <div><h4>Calendario semanal</h4><p>Bloques de estudio arrastrables por día</p></div>
+          </div>
+          <div class="future-item">
+            <div class="ic"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div>
+            <div><h4>Subir apuntes o PDF</h4><p>Genera preguntas automáticas desde tu material</p></div>
+          </div>
+          <div class="future-item">
+            <div class="ic"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+            <div><h4>Examen simulado</h4><p>Modo cronometrado antes de la prueba real</p></div>
+          </div>
+          <div class="future-item">
+            <div class="ic"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
+            <div><h4>Repaso espaciado</h4><p>Recordatorios antes de que se te olvide</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: MIS MATERIAS -->
+  <div class="page" id="page-materias">
+    <div class="page-header">
+      <div><h1>Mis materias</h1><p>Todos los planes que has creado</p></div>
+      <button class="btn" id="newFromMaterias">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        Nueva materia
+      </button>
+    </div>
+    <div id="materiaList"></div>
+  </div>
+
+  <!-- PAGE: PROGRESO -->
+  <div class="page" id="page-progreso">
+    <div class="page-header"><div><h1>Tu progreso</h1><p>Un vistazo a cómo va tu estudio</p></div></div>
+    <div class="progress-hero">
+      <div class="phero-card"><div class="num" id="pMaterias">0</div><div class="lbl">Materias activas</div></div>
+      <div class="phero-card"><div class="num" id="pHoras">0h</div><div class="lbl">Horas planificadas</div></div>
+      <div class="phero-card"><div class="num" id="pDiasHechos">0</div><div class="lbl">Días completados</div></div>
+      <div class="phero-card"><div class="num" id="pRacha">0</div><div class="lbl">Racha (días)</div></div>
+    </div>
+    <div class="card" id="progresoDetalle"></div>
+  </div>
+
+  <!-- PAGE: AJUSTES -->
+  <div class="page" id="page-ajustes">
+    <div class="page-header"><div><h1>Ajustes</h1><p>Conecta tu IA y personaliza la app</p></div></div>
+
+    <div class="card">
+      <div class="card-title">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m12 3-1.9 4.3L6 9l4.1 1.9L12 15l1.9-4.1L18 9l-4.1-1.7Z"/><path d="M5 3v4M3 5h4M19 17v4M17 19h4"/></svg>
+        Conexión con Gemini
+      </div>
+      <div class="card-sub">Necesitas una API key gratuita de Google AI Studio para que el chat de estudio funcione con IA real.</div>
+      <label>Tu API key de Gemini</label>
+      <input type="password" id="apiKeyInput" placeholder="AIza...">
+      <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;">
+        <button class="btn-primary" id="saveKeyBtn">Guardar API key</button>
+        <a class="btn" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg>
+          Obtener API key gratis
+        </a>
+      </div>
+      <div class="note" style="margin-top:16px;">
+        <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        <span>La capa gratuita de Gemini tiene un límite de solicitudes por minuto/día — no es ilimitada, pero es más que suficiente para estudiar a diario. Tu key se guarda solo en este navegador, nunca sale de tu equipo.</span>
+      </div>
+      <div id="keyStatus" style="margin-top:12px; font-size:12.5px; font-weight:600;"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Datos</div>
+      <div class="card-sub">Tus materias y conversaciones se guardan localmente en este navegador</div>
+      <button class="btn btn-danger" id="resetBtn">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+        Borrar todos mis datos
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL: confirmar borrado -->
+<div class="modal-overlay hidden" id="confirmModal">
+  <div class="modal">
+    <h3>¿Borrar todos tus datos?</h3>
+    <p>Esto eliminará todas tus materias, planes y conversaciones guardadas en este navegador. No se puede deshacer.</p>
+    <div class="modal-actions">
+      <button class="btn" id="cancelReset">Cancelar</button>
+      <button class="btn-primary" style="background:var(--red);" id="confirmReset">Sí, borrar todo</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ ESTADO Y PERSISTENCIA ============ */
+const STORE_KEY = 'aprendo_data_v1';
+function loadData(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return { materias: [], settings:{ apiKey:'', theme:'light' }, streak:{count:0,lastDate:null} };
+}
+function saveData(){ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+let state = loadData();
+let currentMateriaId = null;
+
+/* ============ THEME ============ */
+function applyTheme(){
+  const t = state.settings.theme || 'light';
+  let effective = t;
+  if(t === 'auto') effective = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', effective);
+  document.querySelectorAll('.theme-btn').forEach(b=> b.classList.toggle('active', b.dataset.theme===t));
+}
+document.querySelectorAll('.theme-btn').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    state.settings.theme = b.dataset.theme;
+    saveData(); applyTheme();
+  });
+});
+applyTheme();
+
+/* ============ NAVEGACIÓN ============ */
+document.querySelectorAll('.nav-item[data-page]').forEach(item=>{
+  item.addEventListener('click', ()=> goToPage(item.dataset.page));
+});
+function goToPage(page){
+  document.querySelectorAll('.nav-item[data-page]').forEach(i=> i.classList.toggle('active', i.dataset.page===page));
+  document.querySelectorAll('.page').forEach(p=> p.classList.toggle('active', p.id==='page-'+page));
+  if(page==='materias') renderMateriaList();
+  if(page==='progreso') renderProgreso();
+  if(page==='ajustes') renderAjustes();
+}
+document.getElementById('goToSettings').addEventListener('click', ()=> goToPage('ajustes'));
+document.getElementById('newFromMaterias').addEventListener('click', ()=> { resetForm(); goToPage('nuevo'); });
+
+/* ============ FORM: NUEVO PLAN ============ */
+let difficulty = 2;
+document.querySelectorAll('.diff-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    difficulty = parseInt(btn.dataset.v);
+  });
+});
+
+function resetForm(){
+  document.getElementById('topic').value='';
+  document.getElementById('result').style.display='none';
+  currentMateriaId = null;
+}
+
+document.getElementById('genBtn').addEventListener('click', ()=>{
+  const topic = document.getElementById('topic').value.trim();
+  if(!topic){ document.getElementById('topic').focus(); return; }
+  const deadlineDays = parseInt(document.getElementById('deadline').value);
+
+  const baseHoursByDifficulty = {1:4, 2:8, 3:14};
+  let totalHours = baseHoursByDifficulty[difficulty];
+  let studyDays = Math.min(deadlineDays, difficulty===1?3:difficulty===2?5:7);
+  studyDays = Math.max(studyDays, 2);
+
+  const tags = ['Conceptos base','Profundización','Práctica','Práctica','Repaso','Repaso final','Simulacro'];
+  const hoursPattern = distributeHours(totalHours, studyDays);
+  const days = hoursPattern.map((h,i)=> ({ label: tags[i]||'Repaso', hours: Math.round(h*10)/10, done:false }));
+
+  const materia = {
+    id: 'm_'+Date.now(),
+    topic, difficulty, deadlineDays, totalHours, studyDays,
+    days,
+    createdAt: Date.now(),
+    chat: []
+  };
+  state.materias.unshift(materia);
+  saveData();
+  currentMateriaId = materia.id;
+  renderResult(materia);
+  bumpStreak();
+});
+
+function distributeHours(total, days){
+  const weights = Array.from({length:days}, (_,i)=> 1 + (i/(days-1||1))*1.2);
+  const sum = weights.reduce((a,b)=>a+b,0);
+  return weights.map(w => (w/sum)*total);
+}
+
+function renderResult(materia){
+  document.getElementById('totalHours').textContent = materia.totalHours+'h';
+  document.getElementById('totalDays').textContent = materia.studyDays;
+  document.getElementById('perDay').textContent = (materia.totalHours/materia.studyDays).toFixed(1)+'h';
+
+  const diffLabel = {1:'poca', 2:'media', 3:'alta'}[materia.difficulty];
+  document.getElementById('planNote').textContent =
+    `Como marcaste dificultad ${diffLabel} para "${materia.topic}", conviene partir con bloques cortos de conceptos base y dejar sesiones más largas de práctica y repaso hacia el final.`;
+
+  const dayList = document.getElementById('dayList');
+  dayList.innerHTML = '';
+  const maxH = Math.max(...materia.days.map(d=>d.hours));
+  materia.days.forEach((d,i)=>{
+    const pct = Math.round((d.hours/maxH)*100);
+    const item = document.createElement('div');
+    item.className='day-item'+(d.done?' done':'');
+    item.innerHTML = `
+      <div class="day-check ${d.done?'on':''}" data-i="${i}">${d.done?'✓':''}</div>
+      <div class="d">Día ${i+1}</div>
+      <div class="tag">${d.label}</div>
+      <div class="bar"><span style="width:${pct}%"></span></div>
+      <div class="h">${d.hours}h</div>`;
+    dayList.appendChild(item);
+  });
+  dayList.querySelectorAll('.day-check').forEach(chk=>{
+    chk.addEventListener('click', ()=>{
+      const i = parseInt(chk.dataset.i);
+      const m = state.materias.find(x=>x.id===currentMateriaId);
+      m.days[i].done = !m.days[i].done;
+      saveData();
+      renderResult(m);
+    });
+  });
+
+  // chat
+  const chatLog = document.getElementById('chatLog');
+  chatLog.innerHTML = '';
+  if(materia.chat.length===0){
+    addMsgToDom(chatLog, `Perfecto, ya tengo tu plan armado para "${materia.topic}" 🙌 ¿Empezamos con lo básico o prefieres que te haga unas preguntas para ver qué tanto sabes del tema?`, 'ai');
+  } else {
+    materia.chat.forEach(m=> addMsgToDom(chatLog, m.text, m.role));
+  }
+  updateApiWarning();
+
+  document.getElementById('result').style.display='block';
+}
+
+/* ============ MIS MATERIAS ============ */
+function renderMateriaList(){
+  const wrap = document.getElementById('materiaList');
+  if(state.materias.length===0){
+    wrap.innerHTML = `<div class="card"><div class="empty-state">
+      <div class="ic"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+      <h3>Aún no tienes materias</h3>
+      <p>Crea tu primer plan de estudio para verlo aquí</p>
+      <button class="btn-primary" onclick="document.getElementById('newFromMaterias').click()">Crear mi primer plan</button>
+    </div></div>`;
+    return;
+  }
+  const grid = document.createElement('div');
+  grid.className = 'materia-grid';
+  state.materias.forEach(m=>{
+    const doneCount = m.days.filter(d=>d.done).length;
+    const pct = Math.round((doneCount/m.days.length)*100);
+    const dLabel = {1:'Poco',2:'Medio',3:'Mucho'}[m.difficulty];
+    const card = document.createElement('div');
+    card.className='materia-card';
+    card.innerHTML = `
+      <div class="top"><h4>${escapeHtml(m.topic)}</h4><span class="dchip d${m.difficulty}">${dLabel}</span></div>
+      <div class="materia-progress"><span style="width:${pct}%"></span></div>
+      <div class="meta"><span>${doneCount}/${m.days.length} días</span><span>${m.totalHours}h totales</span></div>`;
+    card.addEventListener('click', ()=>{
+      currentMateriaId = m.id;
+      document.getElementById('topic').value = m.topic;
+      difficulty = m.difficulty;
+      document.querySelectorAll('.diff-btn').forEach(b=> b.classList.toggle('active', parseInt(b.dataset.v)===m.difficulty));
+      renderResult(m);
+      goToPage('nuevo');
+    });
+    grid.appendChild(card);
+  });
+  wrap.innerHTML='';
+  wrap.appendChild(grid);
+}
+
+/* ============ PROGRESO ============ */
+function renderProgreso(){
+  const totalHoras = state.materias.reduce((s,m)=>s+m.totalHours,0);
+  const diasHechos = state.materias.reduce((s,m)=> s + m.days.filter(d=>d.done).length, 0);
+  document.getElementById('pMaterias').textContent = state.materias.length;
+  document.getElementById('pHoras').textContent = totalHoras+'h';
+  document.getElementById('pDiasHechos').textContent = diasHechos;
+  document.getElementById('pRacha').textContent = state.streak.count||0;
+
+  const detalle = document.getElementById('progresoDetalle');
+  if(state.materias.length===0){
+    detalle.innerHTML = `<div class="empty-state">
+      <div class="ic"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
+      <h3>Sin datos todavía</h3><p>Crea un plan y marca tus días para ver tu progreso aquí</p></div>`;
+    return;
+  }
+  detalle.innerHTML = `<div class="card-title">Avance por materia</div>` +
+    state.materias.map(m=>{
+      const doneCount = m.days.filter(d=>d.done).length;
+      const pct = Math.round((doneCount/m.days.length)*100);
+      return `<div style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px;">
+          <span style="font-weight:600;">${escapeHtml(m.topic)}</span><span style="color:var(--text-muted);">${pct}%</span>
+        </div>
+        <div class="materia-progress"><span style="width:${pct}%"></span></div>
+      </div>`;
+    }).join('');
+}
+
+function bumpStreak(){
+  const today = new Date().toDateString();
+  if(state.streak.lastDate === today) return;
+  const yesterday = new Date(Date.now()-86400000).toDateString();
+  state.streak.count = (state.streak.lastDate===yesterday) ? (state.streak.count||0)+1 : 1;
+  state.streak.lastDate = today;
+  saveData();
+  document.getElementById('streakNum').textContent = state.streak.count+' días';
+}
+document.getElementById('streakNum').textContent = (state.streak.count||0)+' días';
+
+/* ============ AJUSTES ============ */
+function renderAjustes(){
+  document.getElementById('apiKeyInput').value = state.settings.apiKey || '';
+  updateKeyStatus();
+}
+function updateKeyStatus(){
+  const el = document.getElementById('keyStatus');
+  if(state.settings.apiKey){
+    el.style.color = 'var(--green)';
+    el.textContent = '✓ API key guardada — el chat de estudio ya puede usar IA';
+  } else {
+    el.style.color = 'var(--text-muted)';
+    el.textContent = 'Aún no has guardado una API key';
+  }
+}
+document.getElementById('saveKeyBtn').addEventListener('click', ()=>{
+  state.settings.apiKey = document.getElementById('apiKeyInput').value.trim();
+  saveData();
+  updateKeyStatus();
+  updateApiWarning();
+});
+function updateApiWarning(){
+  document.getElementById('apiWarning').style.display = state.settings.apiKey ? 'none' : 'flex';
+}
+
+document.getElementById('resetBtn').addEventListener('click', ()=> document.getElementById('confirmModal').classList.remove('hidden'));
+document.getElementById('cancelReset').addEventListener('click', ()=> document.getElementById('confirmModal').classList.add('hidden'));
+document.getElementById('confirmReset').addEventListener('click', ()=>{
+  localStorage.removeItem(STORE_KEY);
+  state = loadData();
+  document.getElementById('confirmModal').classList.add('hidden');
+  resetForm();
+  applyTheme();
+  goToPage('nuevo');
+});
+
+/* ============ CHAT CON GEMINI ============ */
+function escapeHtml(s){ return s.replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function addMsgToDom(container, text, role){
+  const div = document.createElement('div');
+  div.className = 'msg '+(role==='user'?'user':'ai');
+  div.textContent = text;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+function showTyping(container){
+  const div = document.createElement('div');
+  div.className = 'msg ai typing';
+  div.id = 'typingIndicator';
+  div.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+function hideTyping(){
+  const t = document.getElementById('typingIndicator');
+  if(t) t.remove();
+}
+
+async function callGemini(materia, userText){
+  const apiKey = state.settings.apiKey;
+  const dLabel = {1:'le cuesta poco',2:'le cuesta medio',3:'le cuesta mucho'}[materia.difficulty];
+  const systemInstruction = `Eres un tutor de estudio para un estudiante universitario chileno. Está estudiando "${materia.topic}" y ${dLabel}. Tiene ${materia.studyDays} días y ${materia.totalHours} horas totales para prepararse. Explica con claridad, en español, con ejemplos concretos y sin relleno innecesario. Si haces preguntas para evaluarlo, hazlas de a una a la vez y espera su respuesta. Sé cercano pero directo, como un buen ayudante de cátedra. Usa formato de texto plano, sin markdown pesado.`;
+
+  const contents = materia.chat.map(m=> ({ role: m.role==='user'?'user':'model', parts:[{text:m.text}] }));
+  contents.push({ role:'user', parts:[{text:userText}] });
+
+  let res;
+  try{
+    res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'x-goog-api-key': apiKey },
+      body: JSON.stringify({
+        system_instruction:{ parts:[{text: systemInstruction}] },
+        contents
+      })
+    });
+  }catch(networkErr){
+    console.error('Network/CORS error calling Gemini', networkErr);
+    throw new Error('No se pudo llegar al servidor de Gemini (posible bloqueo de red, extensión del navegador, o sin conexión). Revisa la consola (F12) para más detalle.');
+  }
+
+  if(!res.ok){
+    const errBody = await res.text();
+    console.error('Gemini error', res.status, errBody);
+    let msg = `Error ${res.status} de Gemini.`;
+    if(res.status===400) msg = 'Tu API key parece inválida o mal copiada (revisa espacios extra). Revísala en Ajustes.';
+    else if(res.status===429) msg = 'Llegaste al límite de solicitudes gratuitas por ahora. Espera un momento y vuelve a intentar.';
+    else if(res.status===403) msg = 'La API key no tiene permisos para este modelo. Genera una nueva en Google AI Studio.';
+    else if(res.status===404) msg = 'El modelo no fue encontrado (puede haber cambiado de nombre). Avísame para actualizarlo.';
+    else {
+      let detail = '';
+      try{ detail = JSON.parse(errBody)?.error?.message || ''; }catch(e){}
+      msg += detail ? ` ${detail}` : ` Detalle: ${errBody.slice(0,200)}`;
+    }
+    throw new Error(msg);
+  }
+  const data = await res.json();
+  const text = data?.candidates?.[0]?.content?.parts?.map(p=>p.text).join('') || 'No obtuve respuesta, intenta de nuevo.';
+  return text;
+}
+
+async function sendMessage(text){
+  const materia = state.materias.find(x=>x.id===currentMateriaId);
+  if(!materia) return;
+  const chatLog = document.getElementById('chatLog');
+
+  addMsgToDom(chatLog, text, 'user');
+  materia.chat.push({role:'user', text});
+  saveData();
+
+  if(!state.settings.apiKey){
+    updateApiWarning();
+    return;
+  }
+
+  document.getElementById('sendBtn').disabled = true;
+  showTyping(chatLog);
+  try{
+    const reply = await callGemini(materia, text);
+    hideTyping();
+    addMsgToDom(chatLog, reply, 'ai');
+    materia.chat.push({role:'model', text:reply});
+    saveData();
+  }catch(err){
+    hideTyping();
+    addMsgToDom(chatLog, '⚠️ '+err.message, 'ai');
+  }finally{
+    document.getElementById('sendBtn').disabled = false;
+  }
+}
+
+document.getElementById('sendBtn').addEventListener('click', ()=>{
+  const input = document.getElementById('chatInput');
+  const val = input.value.trim();
+  if(!val) return;
+  input.value='';
+  sendMessage(val);
+});
+document.getElementById('chatInput').addEventListener('keydown', e=>{
+  if(e.key==='Enter') document.getElementById('sendBtn').click();
+});
+document.querySelectorAll('.badge').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.getElementById('chatInput').value = b.dataset.q;
+    document.getElementById('sendBtn').click();
+  });
+});
+
+/* init */
+renderAjustes();
+</script>
+</body>
+</html>
